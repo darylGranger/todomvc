@@ -63,6 +63,7 @@ jQuery(function ($) {
 				.on('focusout', '.edit', this.update.bind(this))
 				.on('click', '.destroy', this.destroy.bind(this));
 		},
+
 		render: function () {
 			var todos = this.getFilteredTodos();
 			$('#todo-list').html(this.todoTemplate(todos));
@@ -71,6 +72,17 @@ jQuery(function ($) {
 			this.renderFooter();
 			$('#new-todo').focus();
 			util.store('todos-jquery', this.todos);
+		},
+
+	
+		render: function () {
+			var todos = this.getFilteredTodos();
+			$('#todo-list').html(this.todoTemplate(todos));  
+			$('#main').toggle(todos.length > 0);
+			$('#toggle-all').prop('checked', this.getActiveTodos().length === 0);
+			this.renderFooter(); 
+			$('#new-todo').focus();  
+		
 		},
 		renderFooter: function () {
 			var todoCount = this.todos.length;
@@ -84,6 +96,9 @@ jQuery(function ($) {
 
 			$('#footer').toggle(todoCount > 0).html(template);
 		},
+		saveCurrentTodos: function() {
+			util.store('todos-jquery', this.todos);
+		},
 		toggleAll: function (e) {
 			var isChecked = $(e.target).prop('checked');
 
@@ -92,6 +107,7 @@ jQuery(function ($) {
 			});
 
 			this.render();
+			this.saveCurrentTodos();
 		},
 		getActiveTodos: function () {
 			return this.todos.filter(function (todo) {
@@ -118,6 +134,7 @@ jQuery(function ($) {
 			this.todos = this.getActiveTodos();
 			this.filter = 'all';
 			this.render();
+			this.saveCurrentTodos();
 		},
 		// accepts an element from inside the `.item` div and
 		// returns the corresponding index in the `todos` array
@@ -149,11 +166,13 @@ jQuery(function ($) {
 			$input.val('');
 
 			this.render();
+			this.saveCurrentTodos();
 		},
 		toggle: function (e) {
 			var i = this.indexFromEl(e.target);
 			this.todos[i].completed = !this.todos[i].completed;
 			this.render();
+			this.saveCurrentTodos();
 		},
 		edit: function (e) {
 			var $input = $(e.target).closest('li').addClass('editing').find('.edit');
@@ -185,10 +204,12 @@ jQuery(function ($) {
 			}
 
 			this.render();
+			this.saveCurrentTodos();
 		},
 		destroy: function (e) {
 			this.todos.splice(this.indexFromEl(e.target), 1);
 			this.render();
+			this.saveCurrentTodos();
 		}
 	};
 
